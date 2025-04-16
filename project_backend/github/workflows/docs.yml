@@ -1,0 +1,41 @@
+name: 文档自动化更新
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'app/routes/​**​'      # 路由文件变更时触发
+      - 'app/models/​**​'    # 数据模型变更时触发
+      - 'app/config/settings.py'  # 配置变更时触发
+
+jobs:
+  update-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # 获取完整提交历史
+
+      - name: 设置Python环境
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: 安装依赖
+        run: |
+          pip install -r docs/requirements.txt
+          pip install fastapi-openapi-to-markdown
+
+      - name: 生成文档
+        run: |
+          python scripts/generate_openapi.py
+          fastapi2md -i docs/openapi.json -o docs/api.md
+
+      - name: 提交变更
+        run: |
+          git config --global user.name "GitHub Docs Bot"
+          git config --global user.email "docs-bot@users.noreply.github.com"
+          git add docs/api.md
+          git commit -m "📚 自动更新API文档"
+          git push

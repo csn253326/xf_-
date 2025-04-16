@@ -1,0 +1,5 @@
+[tool.poetry.dependencies]
+python = "~3.11"  # 严格限制Python版本
+uvicorn = { version = ">=0.23", extras = ["standard"] }
+celery = { version = ">=5.3", extras = ["redis"] }
+psycopg = { version = ">=3.1", extras = ["binary"] }
